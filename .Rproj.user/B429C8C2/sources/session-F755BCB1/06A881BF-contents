@@ -1,0 +1,32 @@
+library(ggplot2)
+library(dplyr)
+
+data <- get_iotree_data(paste0("data/iotree_database.csv"))
+
+ggplot(data %>% 
+         filter(pressure > 0) %>% 
+         mutate(id = factor(id)),
+       aes(x = datetime)) +
+  geom_point(aes(y = pressure, color = id)) +
+  scale_x_datetime(date_labels = "%b %d") +
+  xlab("") +
+  theme_bw()
+
+ggplot(data %>% 
+         filter(humid > 0) %>% 
+         mutate(id = factor(id)),
+       aes(x = datetime)) +
+  geom_point(aes(y = humid, color = id)) +
+  scale_x_datetime(date_labels = "%b %d") +
+  xlab("") +
+  theme_bw()
+
+ggplot(data %>% 
+         filter(temp > 0) %>% 
+         mutate(id = factor(id)),
+       aes(x = datetime)) +
+  geom_point(aes(y = temp, color = id)) +
+  scale_x_datetime(date_labels = "%b %d") +
+  xlab("") +
+  theme_bw()
+
