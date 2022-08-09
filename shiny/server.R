@@ -18,9 +18,9 @@ server <- function(input, output) {
     datetime_filter <- input$date_time_filter
     data_iotree() %>% 
       filter(datetime >= datetime_filter[1],
-             datetime <= datetime_filter[2]) %>% 
+             datetime <= as.Date(datetime_filter[2]) + 1) %>% 
       group_by(id) %>% 
-      slice_sample(n = 500)
+      slice_sample(n = 500, replace = TRUE)
   })
   
   output$data_range_ui <- renderUI({
