@@ -32,6 +32,9 @@ body <- dashboardBody(
         )
       ),
       fluidRow(
+        uiOutput("data_range_ui")
+      ),
+      fluidRow(
         uiOutput("iotree_pressure_ui")
       ),
       fluidRow(

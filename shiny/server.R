@@ -14,8 +14,31 @@ server <- function(input, output) {
     get_iotree_data(paste0("../data/iotree_database.csv"))
   })
   
+  data_iotree_filter <- reactive({
+    datetime_filter <- input$date_time_filter
+    data_iotree() %>% 
+      filter(datetime >= datetime_filter[1],
+             datetime <= datetime_filter[2]) %>% 
+      group_by(id) %>% 
+      slice_sample(n = 500)
+  })
+  
+  output$data_range_ui <- renderUI({
+    date_max <- max(data_iotree()$datetime)
+    date_min <- min(data_iotree()$datetime)
+
+    column(width = 12,
+           dateRangeInput("date_time_filter",
+                          label = 'Date range:',
+                          start = as.Date(date_max) - 2,
+                          end = date_max,
+                          min = date_min,
+                          max = date_max)
+    )
+  })
+  
   output$iotree_pressure_plot <- renderPlotly({
-    p <- ggplot(data_iotree() %>%
+    p <- ggplot(data_iotree_filter() %>%
                   mutate(id = factor(id)) %>%
                   filter(
                     pressure > 0),
@@ -38,7 +61,7 @@ server <- function(input, output) {
   })
   
   output$iotree_temperature_plot <- renderPlotly({
-    p <- ggplot(data_iotree() %>%
+    p <- ggplot(data_iotree_filter() %>%
                   mutate(id = factor(id)) %>%
                   filter(
                     temperature > 0),
@@ -61,7 +84,7 @@ server <- function(input, output) {
   })
   
   output$iotree_humid_plot <- renderPlotly({
-    p <- ggplot(data_iotree() %>%
+    p <- ggplot(data_iotree_filter() %>%
                   mutate(id = factor(id)) %>%
                   filter(
                     humid > 0),
@@ -84,7 +107,7 @@ server <- function(input, output) {
   })
   
   output$iotree_battery_plot <- renderPlotly({
-    p <- ggplot(data_iotree() %>%
+    p <- ggplot(data_iotree_filter() %>%
                   mutate(id = factor(id)) %>%
                   filter(
                     battery > 0),
