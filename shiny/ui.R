@@ -38,14 +38,10 @@ body <- dashboardBody(
           column(
             width = 6,
             h3("IoTree - Data by Paramenter"),
-          ),
-          column(
-            width = 6,
-            actionButton("btn_refreash_data", "Refreash Data"),
-            shiny_busy()
           )
         )
       ),
+      fluidRow(shiny_busy()),
       fluidRow(
         column(
           width = 12,

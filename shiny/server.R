@@ -26,14 +26,42 @@ server <- function(input, output) {
   output$data_range_ui <- renderUI({
     date_max <- max(data_iotree()$datetime)
     date_min <- min(data_iotree()$datetime)
+    iotree_ids <- unique(data_iotree()$id)
 
-    column(width = 12,
-           dateRangeInput("date_time_filter",
+    column(
+      width = 12,
+      box(
+        "Setup",
+        column(
+          width = 4,
+          dateRangeInput("date_time_filter",
                           label = 'Date range:',
                           start = as.Date(date_max) - 2,
                           end = date_max,
                           min = date_min,
                           max = date_max)
+        ),
+        column(
+          width = 4,
+          fluidRow(
+            checkboxInput(
+              "enable_atm_pressure",
+              "Remove atmosferic pressure from your data"
+            )
+          ),
+          fluidRow(
+            selectInput(
+              "atm_pressure_id",
+              "Select your device with atmosferic pressure:",
+              choices = iotree_ids
+            )
+          )
+        ),
+        column(
+          width = 4,
+          actionButton("btn_refreash_data", "Refreash Data"),
+        )
+      )
     )
   })
   
