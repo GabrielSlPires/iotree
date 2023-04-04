@@ -8,3 +8,8 @@ get_iotree_data <- function(file_name) {
   data$id = factor(data$id)
   return(data)
 }
+
+atm_pressure <- function(data_atm, date) {
+  pressure <- data_atm$pressure[which.min(abs(difftime(data_atm$datetime, date)))]
+  return(pressure)
+} 

@@ -43,10 +43,7 @@ body <- dashboardBody(
       ),
       fluidRow(shiny_busy()),
       fluidRow(
-        column(
-          width = 12,
-          uiOutput("data_range_ui")
-        )
+        uiOutput("data_range_ui")
       ),
       fluidRow(
         uiOutput("iotree_pressure_ui")

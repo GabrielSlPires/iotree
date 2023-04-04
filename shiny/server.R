@@ -26,12 +26,13 @@ server <- function(input, output) {
   output$data_range_ui <- renderUI({
     date_max <- max(data_iotree()$datetime)
     date_min <- min(data_iotree()$datetime)
-    iotree_ids <- unique(data_iotree()$id)
+    iotree_ids <- sort(unique(data_iotree()$id))
 
     column(
       width = 12,
       box(
-        "Setup",
+        title = "Setup",
+        width = 12,
         column(
           width = 4,
           dateRangeInput("date_time_filter",
@@ -66,7 +67,19 @@ server <- function(input, output) {
   })
   
   output$iotree_pressure_plot <- renderPlotly({
-    p <- ggplot(data_iotree_filter() %>%
+    data <- data_iotree_filter()
+    if (input$enable_atm_pressure) {
+      data_atm <- data %>% 
+        filter(id == input$atm_pressure_id) %>% 
+        select(pressure, datetime)
+      
+      data <- data %>% 
+        filter(id != input$atm_pressure_id) %>% 
+        rowwise() %>% 
+        mutate(pressure = pressure - atm_pressure(data_atm, datetime))
+    }
+    
+    p <- ggplot(data %>%
                   mutate(id = factor(id)) %>%
                   filter(
                     pressure > 0),
