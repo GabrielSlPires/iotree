@@ -34,17 +34,23 @@ body <- dashboardBody(
       tabName = "sensor_view",
       fluidRow(
         column(
-          width = 6,
-          h3("IoTree - Data by Paramenter"),
-        ),
-        column(
-          width = 6,
-          actionButton("btn_refreash_data", "Refreash Data"),
-          shiny_busy()
+          width = 12,
+          column(
+            width = 6,
+            h3("IoTree - Data by Paramenter"),
+          ),
+          column(
+            width = 6,
+            actionButton("btn_refreash_data", "Refreash Data"),
+            shiny_busy()
+          )
         )
       ),
       fluidRow(
-        uiOutput("data_range_ui")
+        column(
+          width = 12,
+          uiOutput("data_range_ui")
+        )
       ),
       fluidRow(
         uiOutput("iotree_pressure_ui")
