@@ -5,13 +5,13 @@ library(dplyr)
 library(plotly)
 
 source("helper.R", local = TRUE)
-
+data_github_path <- "https://raw.githubusercontent.com/biolpereira/data_iotree_unicamp/master/database-test.csv"
 
 server <- function(input, output) {
   #import data when press the button
   data_iotree <- reactive({
     input$btn_refreash_data
-    get_iotree_data(paste0("../data/iotree_database.csv"))
+    get_iotree_data(paste0(data_github_path))
   })
   
   data_iotree_filter <- reactive({
