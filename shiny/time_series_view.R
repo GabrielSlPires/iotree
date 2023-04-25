@@ -6,11 +6,12 @@ library(magrittr)
 library(zoo)
 library(tidyr)
 
-my_ts_df <- function(sensor, type, time, my_ts_decomposed) {
+my_ts_df <- function(sensor, type, time, raw_value, my_ts_decomposed) {
   data.frame(
     sensor = sensor,
     type = type,
     time = as.numeric(time),
+    raw_value = as.numeric(raw_value),
     observed = as.numeric(my_ts_decomposed$x),
     trend = as.numeric(my_ts_decomposed$trend),
     seasonal = as.numeric(my_ts_decomposed$seasonal)
@@ -42,6 +43,10 @@ time_series_ui <- function(id) {
         title = "Time series Plots",
         column(
           width = 12,
+          fluidRow(
+            h4("Time Series - Missing Values"),
+            plotOutput(ns("missing_values"), height = "90vh")
+          ),
           fluidRow(
             h4("Raw Time Series"),
             plotOutput(ns("raw_time_series"), height = "90vh")
@@ -100,17 +105,43 @@ time_series_server <- function(id, data_iotree) {
                               my_ts_df(iotree_id,
                                        iotree_type[as.character(iotree_id)],
                                        time(my_ts),
+                                       as.ts(zoo_ts),
                                        my_ts_decomposed))
       }
       result_plot <- pivot_longer(humid_result,
-                                  cols = c("observed",
+                                  cols = c("raw_value",
+                                           "observed",
                                            "trend",
                                            "seasonal"))
       return(result_plot)
     }) 
+    
+    output$missing_values <- renderPlot(
+      ggplot(result_plot() %>% 
+               mutate(value = scale(value)) %>% 
+               pivot_wider(names_from = "name",
+                           values_from = "value"),
+             aes(x = time)) +
+        geom_line(aes(y = observed, color = "Filled")) +
+        geom_line(aes(y = raw_value, color = "Raw")) +
+        facet_wrap(~sensor,
+                   ncol = 1,
+                   strip.position = "right",
+                   scales = "free") +
+        scale_color_manual(values = c("Raw" = "grey80",
+                                      "Filled" = "red")) +
+        theme_bw() +
+        theme(legend.position = "top") +
+        labs(title = "Missing values",
+             subtitle = "Values were filled with zoo:na.spline()",
+             y = "iotree_output",
+             x = "day",
+             color = "Values")
+    )
 
     output$raw_time_series <- renderPlot(
       ggplot(result_plot() %>% 
+               filter(name != "raw_value") %>% 
                mutate(value = scale(value))) +
         ts_custom_theme +
         facet_wrap(~name,
@@ -121,6 +152,7 @@ time_series_server <- function(id, data_iotree) {
     
     output$atm_plant_time_series <- renderPlot(
       ggplot(result_plot() %>% 
+               filter(name != "raw_value") %>% 
                group_by(sensor, name) %>% 
                mutate(value = scale(value))) +
         ts_custom_theme +
@@ -131,6 +163,7 @@ time_series_server <- function(id, data_iotree) {
     
     output$normalized_time_series <- renderPlot(
       ggplot(result_plot() %>% 
+               filter(name != "raw_value") %>% 
                group_by(sensor, name) %>% 
                mutate(value = scale(value))) +
         ts_custom_theme +

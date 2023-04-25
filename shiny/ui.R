@@ -66,6 +66,7 @@ body <- dashboardBody(
     ),
     tabItem(
       tabName = "time_series_view",
+      fluidRow(shiny_busy()),
       time_series_ui("time_series")
     )
   )
