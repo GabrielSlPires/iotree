@@ -1,5 +1,6 @@
 library(shiny)
 library(shinydashboard)
+source("time_series_view.R")
 
 shiny_busy <- function() { #https://community.rstudio.com/t/shiny-app-show-some-message-while-user-is-waiting-for-output/12822
   # use &nbsp; for some alignment, if needed
@@ -17,6 +18,11 @@ sidebar <- dashboardSidebar(
     menuItem("Running Sensors",
              tabName = "sensor_view",
              icon = icon("folder") #filter-list
+    ),
+    menuItem("Time Series Analisys",
+             tabName = "time_series_view",
+             icon = icon("chart-line"),
+             badgeLabel = "new"
     ),
     menuItem("About",
              icon = icon("th"),
@@ -57,6 +63,10 @@ body <- dashboardBody(
       fluidRow(
         uiOutput("iotree_battery_ui")
       )
+    ),
+    tabItem(
+      tabName = "time_series_view",
+      time_series_ui("time_series")
     )
   )
 )

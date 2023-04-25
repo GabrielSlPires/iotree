@@ -3,6 +3,7 @@ library(lubridate)
 library(ggplot2)
 library(dplyr)
 library(plotly)
+source("time_series_view.R")
 
 source("helper.R", local = TRUE)
 data_github_path <- "https://raw.githubusercontent.com/biolpereira/data_iotree_unicamp/master/database-test.csv"
@@ -169,4 +170,6 @@ server <- function(input, output) {
                width = 12,
                plotlyOutput(plotname)))
   })
+  
+  time_series_server("time_series", data_iotree())
 }
