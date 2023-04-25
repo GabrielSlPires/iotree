@@ -128,8 +128,8 @@ time_series_server <- function(id, data_iotree) {
                    ncol = 1,
                    strip.position = "right",
                    scales = "free") +
-        scale_color_manual(values = c("Raw" = "grey80",
-                                      "Filled" = "red")) +
+        #scale_color_manual(values = c("Raw" = "grey80",
+        #                              "Filled" = "red")) +
         theme_bw() +
         theme(legend.position = "top") +
         labs(title = "Missing values",
