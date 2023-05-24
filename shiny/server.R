@@ -11,7 +11,7 @@ server <- function(input, output) {
   #import data when press the button
   data_iotree <- reactive({
     input$btn_refreash_data
-    get_iotree_data(paste0("../data/iotree_database.csv"))
+    get_iotree_data(paste0("../data/data_iotree_unicamp/database-test.csv"))
   })
   
   data_iotree_filter <- reactive({
