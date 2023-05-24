@@ -3,15 +3,16 @@ library(lubridate)
 library(ggplot2)
 library(dplyr)
 library(plotly)
+source("time_series_view.R")
 
 source("helper.R", local = TRUE)
-
+data_github_path <- "https://raw.githubusercontent.com/biolpereira/data_iotree_unicamp/master/database-test.csv"
 
 server <- function(input, output) {
   #import data when press the button
   data_iotree <- reactive({
     input$btn_refreash_data
-    get_iotree_data(paste0("../data/data_iotree_unicamp/database-test.csv"))
+    get_iotree_data(paste0(data_github_path))
   })
   
   data_iotree_filter <- reactive({
@@ -26,19 +27,60 @@ server <- function(input, output) {
   output$data_range_ui <- renderUI({
     date_max <- max(data_iotree()$datetime)
     date_min <- min(data_iotree()$datetime)
+    iotree_ids <- sort(unique(data_iotree()$id))
 
-    column(width = 12,
-           dateRangeInput("date_time_filter",
+    column(
+      width = 12,
+      box(
+        title = "Setup",
+        width = 12,
+        column(
+          width = 4,
+          dateRangeInput("date_time_filter",
                           label = 'Date range:',
                           start = as.Date(date_max) - 2,
                           end = date_max,
                           min = date_min,
                           max = date_max)
+        ),
+        column(
+          width = 4,
+          fluidRow(
+            checkboxInput(
+              "enable_atm_pressure",
+              "Remove atmosferic pressure from your data"
+            )
+          ),
+          fluidRow(
+            selectInput(
+              "atm_pressure_id",
+              "Select your device with atmosferic pressure:",
+              choices = iotree_ids
+            )
+          )
+        ),
+        column(
+          width = 4,
+          actionButton("btn_refreash_data", "Refreash Data"),
+        )
+      )
     )
   })
   
   output$iotree_pressure_plot <- renderPlotly({
-    p <- ggplot(data_iotree_filter() %>%
+    data <- data_iotree_filter()
+    if (input$enable_atm_pressure) {
+      data_atm <- data %>% 
+        filter(id == input$atm_pressure_id) %>% 
+        select(pressure, datetime)
+      
+      data <- data %>% 
+        filter(id != input$atm_pressure_id) %>% 
+        rowwise() %>% 
+        mutate(pressure = pressure - atm_pressure(data_atm, datetime))
+    }
+    
+    p <- ggplot(data %>%
                   mutate(id = factor(id)) %>%
                   filter(
                     pressure > 0),
@@ -128,4 +170,6 @@ server <- function(input, output) {
                width = 12,
                plotlyOutput(plotname)))
   })
+  
+  time_series_server("time_series", data_iotree())
 }

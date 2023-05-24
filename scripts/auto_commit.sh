@@ -1,5 +1,6 @@
 #!/bin/sh
 
+cd /home/pi/Documents/iotree/data
 git pull
 git add .
 timestamp() {
