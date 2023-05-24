@@ -17,7 +17,8 @@ def com_ports():
     for port, desc, hwid in sorted(ports_name):
         ports.append(port)
     
-    #ports.remove('/dev/ttyAMA0')
+    ports.remove('COM4')
+    ports.remove('COM5')
     return(ports)
 
 ports = com_ports()
