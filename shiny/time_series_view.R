@@ -44,6 +44,13 @@ time_series_ui <- function(id) {
         column(
           width = 12,
           fluidRow(
+            selectInput(ns("serial_var"),
+            "Select your interest Variable:",
+            choices = list("V1" = "pressure",
+                           "V2" = "humid"),
+            selected = 1)
+          ),
+          fluidRow(
             h4("Time Series - Missing Values"),
             plotOutput(ns("missing_values"), height = "90vh")
           ),
@@ -73,8 +80,10 @@ time_series_server <- function(id, data_iotree) {
     result_plot <- reactive({
       
       iotree_type <- c("101" = "plant",
+                       "102" = "plant",
                        "103" = "atm",
                        "105" = "plant",
+                       "116" = "plant",
                        "117" = "atm",
                        "118" = "plant")
       
@@ -90,7 +99,7 @@ time_series_server <- function(id, data_iotree) {
         #filter loop data
         data_ts <- data %>% 
           filter(id == iotree_id) %>% 
-          select(datetime, humid) %>% 
+          select(datetime, all_of(input$serial_var)) %>% 
           group_by(datetime = floor_date(datetime, "30 mins")) %>%
           summarize_all(mean, na.rm = TRUE)
         
@@ -114,6 +123,11 @@ time_series_server <- function(id, data_iotree) {
                                            "trend",
                                            "seasonal"))
       return(result_plot)
+      sample_scale <- scale(result_plot$value[1:(length(result_plot$value*0.1))])
+      result_plot <- result_plot %>% 
+        mutate(value_scale = scale(value,
+                                   attr(sample_scale, "scaled:center"),
+                                   attr(sample_scale, "scaled:scale")))
     }) 
     
     output$missing_values <- renderPlot(
